@@ -5,7 +5,9 @@ Ex2.Logic = function()
 	let ROWS = 4;
 	let COLS = 4;
 	let SIZE =ROWS*COLS;
+	let merged = [];
 	let tiles = [];
+	let startTiles=2;
 	let over = false;
 	var ROTATIONS =
 	{
@@ -18,29 +20,27 @@ Ex2.Logic = function()
 	
 	let initModule = function()
 	{
-		let a = parseInt(Math.random() * SIZE);//location of a
-		let b = a;
-		while(b===a)
-		{
-		  b = parseInt(Math.random() * SIZE); //location of b
-		}
 		for(var i = 0 ; i < SIZE ; i++)
 		{
 			tiles[i]=0;
+			merged[i]=false;
 		}
-		tiles[a]=chooseStartNumber();;
-		tiles[b]=chooseStartNumber();;
-		
+			start();
 	};
+	
+	let start =function()
+	{
+		for(var i =0 ; i<startTiles;i++)
+		{
+			var emptyTiles = getEmpties();
+			var selectedTile = emptyTiles[Math.floor(Math.random() * emptyTiles.length)]	
+			tiles[selectedTile]= chooseStartNumber();
+		}
+	}
 	
 	let chooseStartNumber = function()// 2 or 4
 	{
-		var i = parseInt(Math.random()*2);
-		if(i===0)
-		{
-			return 2;
-		}
-		return 4;
+		return Math.random()<0.5 ? 2:4;
 	};
 	
 	let getEmpties = function() //return the emptie tiles
@@ -59,6 +59,9 @@ Ex2.Logic = function()
 	let placeTile = function()//place a new tile in an empty one
 	{
 		var emptyTiles = getEmpties();
+		var selectedTile = emptyTiles[Math.floor(Math.random() * emptyTiles.length)]
+		tiles[selectedTile] = chooseStartNumber();
+		emptyTiles = getEmpties();
 		if(emptyTiles.length===0)
 		{
 			console.log("No free tiles");
@@ -68,12 +71,9 @@ Ex2.Logic = function()
 				console.log("over");
 				over = true;
 			}
-		}
-		else
-		{
-			var selectedTile = emptyTiles[Math.floor(Math.random() * emptyTiles.length)]
-			tiles[selectedTile] = chooseStartNumber();
 		}		
+		
+		
 	}
 	let nothingLeftToMerge = function() //check if there is no more merging to do
 	{
@@ -112,7 +112,6 @@ Ex2.Logic = function()
 			if(tiles[i]===2048)
 			{
 				over =true;
-				Ex2.GUI.drawBoard();
 				setTimeout(function()
 				{
 					alert("YOU WIN!");
@@ -162,7 +161,7 @@ Ex2.Logic = function()
 				{
 					swap(i);
 				} 
-				else if (tiles[i] === tiles[i - 1] )
+				else if (tiles[i] === tiles[i - 1] && !merged[i] &&!merged[i-1])
 				{
 					merge(i);
 				}
@@ -174,13 +173,15 @@ Ex2.Logic = function()
 	}
 	let merge = function(i) //merge tile i with left tile
 	{
-		var currentIndex = i;
-		var leftIndex = i - 1;
-		var currentTileValue = tiles[i];
-		var leftTileValue = tiles[leftIndex];
-		tiles[leftIndex] = leftTileValue + currentTileValue;
-		tiles[i] = 0;
-
+		
+			var currentIndex = i;
+			var leftIndex = i - 1;
+			var currentTileValue = tiles[i];
+			var leftTileValue = tiles[leftIndex];
+			tiles[leftIndex] = leftTileValue + currentTileValue;
+			tiles[i] = 0;
+			merged[leftIndex]= true;
+		
 	};
 	let cheat = function()// I added a cheat method if you press c you win 
 	{
@@ -196,7 +197,6 @@ Ex2.Logic = function()
 				var selectedTile = emptyTiles[Math.floor(Math.random() * emptyTiles.length)]
 				tiles[selectedTile] = 2048;
 				over = true;
-				Ex2.GUI.drawBoard();
 				setTimeout(function()
 				{
 					alert("YOU WIN!");
@@ -218,16 +218,25 @@ Ex2.Logic = function()
 			rotateTimes((ROTATIONS['total'] - rotationTimes) % COLS);
 			if (over) 
 			{
-				alert('Game over!')
+				setTimeout(function()
+				{
+					alert("GAME OVER!");
+				}, 200);
 			} 		
 			else 
 			{
-				checkForWin();
+					checkForWin();
 			}
-			Ex2.GUI.drawBoard();/////////////////////////////////////
-
+			mergeReset();
 		}
 	};
+	let mergeReset = function()
+	{
+		for(var i =0 ; i<SIZE ;i++)
+		{
+			merged[i]= false;
+		}
+	}
 	
 	let getRows = () => ROWS;
     let getCols = () => COLS;
@@ -235,6 +244,6 @@ Ex2.Logic = function()
 	 let toInd = (row, col) => row * COLS + col;
 	
 
-    return { initModule, getRows, getCols, getCell,move,placeTile,checkForWin,getEmpties,swap,rotate, rotateTimes,transpose,slideAll,slide,merge,cheat,nothingLeftToMerge}
+    return { initModule, getRows, getCols, getCell,move,placeTile,checkForWin,getEmpties,swap,rotate, rotateTimes,transpose,slideAll,slide,merge,cheat,nothingLeftToMerge,mergeReset, start}
 
 }();

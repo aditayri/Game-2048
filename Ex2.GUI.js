@@ -9,8 +9,8 @@ let initModule = function()
 	 this.canvas = document.getElementById("canvas");
 		this.canvas.width = window.innerWidth -30
 		this.canvas.height = window.innerHeight-30 ;
-        w = 600;
-        h = 600;
+        w = 500;
+        h = 500;
         Ex2.Logic.initModule();    
         drawBoard();
 		document.onkeydown = keyHandler.bind(this);
@@ -31,6 +31,7 @@ function keyHandler(event)
 			Ex2.Logic.move('down');
 		else if(e.keyCode == '67')
 			Ex2.Logic.cheat();
+		drawBoard();
 		
 		
 };
@@ -124,6 +125,6 @@ let drawBoard = function() {
 
 
 
-  return {initModule,drawBoard};
+  return {initModule };
 
 }();
